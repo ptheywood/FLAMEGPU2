@@ -76,6 +76,9 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     endif()
 endif()
 
+# Option to enable detailed ctest. This massivly slows down unit test execution.
+option(USE_GTEST_DISCOVER "Enable GTEST_DISCOVER for more detailed ctest output without -VV. This is very slow due to CUDA context initialisation." OFF)
+
 # Define a function to add a lint target.
 find_file(CPPLINT NAMES cpplint cpplint.exe)
 if(CPPLINT)
@@ -116,8 +119,12 @@ if(BUILD_ALL_EXAMPLES OR BUILD_EXAMPLE_CIRCLES_SPATIAL_3D)
     add_subdirectory(examples/circles_spatial3D)
 endif()
 
-# Add the tests directory (if required)
+# Add the tests directory and enable ctest
 if(BUILD_TESTS)
+    enable_testing()
+    if(USE_GTEST_DISCOVER)
+        include(GoogleTest)
+    endif()
     add_subdirectory(tests)
 endif()
 
