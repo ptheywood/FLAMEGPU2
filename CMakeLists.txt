@@ -72,6 +72,7 @@ option(BUILD_FLAMEGPU2 "Enable building FLAMEGPU2 library" ON)
 
 # Option to enable/disable building the static library
 option(VISUALISATION "Enable visualisation support" OFF)
+
 if(NOT NO_EXAMPLES)
     # Option to enable building all examples
     option(BUILD_ALL_EXAMPLES "Enable building examples" ON)
