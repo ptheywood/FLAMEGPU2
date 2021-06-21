@@ -93,7 +93,6 @@ set(FLAMEGPU_DEPENDENCY_INCLUDE_DIRECTORIES)
 set(FLAMEGPU_DEPENDENCY_LINK_LIBRARIES)
 
 # NVRTC.lib/CUDA.lib
-
 find_package(NVRTC REQUIRED)
 if(NVRTC_FOUND)
     set(FLAMEGPU_DEPENDENCY_INCLUDE_DIRECTORIES ${FLAMEGPU_DEPENDENCY_INCLUDE_DIRECTORIES} "${NVRTC_INCLUDE_DIRS}")
@@ -387,6 +386,14 @@ else()
     endif()
 endif()
 
+
+# CMAke >= 3.17 cuda toolkit finding package. This finds (and requires) cuda submodules and is not actively deprecated unlike previous built in methods.
+# Otherwise we had workarounds in place. 
+# @todo - don't duplicate effort with nvrtc etc if this becomes reuqie.d
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.17)
+    find_package(CUDAToolkit REQUIRED)
+endif()
+
 # Function to mask some of the steps to create an executable which links against the static library
 function(add_flamegpu_executable NAME SRC FLAMEGPU_ROOT PROJECT_ROOT IS_EXAMPLE)
     # Parse optional arugments.
@@ -593,6 +600,13 @@ function(add_flamegpu_library NAME SRC FLAMEGPU_ROOT)
         
     # Thrust uses isystem if available
     target_link_libraries(${NAME} Thrust::Thrust)
+
+    # Required cuda toolkit components if Cmake version if they were definatley found (cmake version dependent)
+    if(CUDAToolkit_FOUND)
+        target_link_libraries(${name} CUDA::curand)
+        target_link_libraries(${name} CUDA::nvrtc)
+        target_link_libraries(${name} CUDA::nvToolsExt)
+    endif()
 
     # tinyxml2 static library
     target_link_libraries(${NAME} tinyxml2)
