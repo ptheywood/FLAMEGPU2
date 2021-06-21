@@ -655,7 +655,7 @@ void CUDASimulation::stepLayer(const std::shared_ptr<LayerData>& layer, const un
             if (auto oa = func_des->agent_output.lock()) {
                 agentoutput_hash = (Curve::variableRuntimeHash("_agent_birth") ^ funcname_hash) + instance_id;
                 CUDAAgent& output_agent = getCUDAAgent(oa->name);
-                d_agentOut_nextID = output_agent.getDeviceNextID();
+                d_agentOut_nextID = output_agent.getDeviceNextIDAsync(this->getStream(streamIdx));
             }
 
             const CUDAAgent& cuda_agent = getCUDAAgent(agent_name);
@@ -1696,8 +1696,18 @@ void CUDASimulation::assignAgentIDs() {
         // Ensure singletons have been initialised
         initialiseSingletons();
 
+        unsigned int idx = 0;
         for (auto &a : agent_map) {
-            a.second->assignIDs(*host_api);  // This is cheap if the CUDAAgent thinks it's IDs are already assigned
+            cudaStream_t stream = this->getStream(idx);  // @todo - ensure that this exists.
+            a.second->assignIDsAsync(*host_api, stream);  // This is cheap if the CUDAAgent thinks it's IDs are already assigned
+            idx++;
+        }
+
+        // Sync all the streams used here. An event would probably be better.
+        idx = 0;
+        for (auto &a : agent_map) {
+            gpuErrchk(cudaStreamSynchronize(this->getStream(idx)));
+            idx++;
         }
         agent_ids_have_init = true;
     }
