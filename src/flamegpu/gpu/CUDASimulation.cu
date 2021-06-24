@@ -268,9 +268,6 @@ bool CUDASimulation::step() {
     util::CUDAEventTimer stepTimer = util::CUDAEventTimer();
     stepTimer.start();
 
-    // Init any unset agent IDs
-    this->assignAgentIDs();
-
     // If verbose, print the step number.
     if (getSimulationConfig().verbose) {
         fprintf(stdout, "Processing Simulation Step %u\n", step_count);
@@ -280,6 +277,9 @@ bool CUDASimulation::step() {
     // Taking into consideration if in-layer concurrency is disabled or not.
     unsigned int nStreams = getMaximumLayerWidth();
     this->createStreams(nStreams);
+
+    // Init any unset agent IDs
+    this->assignAgentIDs();
 
     // Reset message list flags
     for (auto m =  message_map.begin(); m != message_map.end(); ++m) {
@@ -1696,18 +1696,20 @@ void CUDASimulation::assignAgentIDs() {
         // Ensure singletons have been initialised
         initialiseSingletons();
 
+        // Ensure there are enough streasm
+        unsigned int nStreams = static_cast<unsigned int>(agent_map.size());
+        this->createStreams(nStreams);
+
         unsigned int idx = 0;
         for (auto &a : agent_map) {
-            cudaStream_t stream = this->getStream(idx);  // @todo - ensure that this exists.
-            a.second->assignIDsAsync(*host_api, stream);  // This is cheap if the CUDAAgent thinks it's IDs are already assigned
+            a.second->assignIDsAsync(*host_api, this->getStream(idx));  // This is cheap if the CUDAAgent thinks it's IDs are already assigned
             idx++;
         }
 
-        // Sync all the streams used here. An event would probably be better.
-        idx = 0;
-        for (auto &a : agent_map) {
+        // Sync all the streams used here
+        // @todo - Record an event in each participating stream, and sync that event. Ideally create and destroy the event once.
+        for (idx = 0; idx < nStreams; idx++) {
             gpuErrchk(cudaStreamSynchronize(this->getStream(idx)));
-            idx++;
         }
         agent_ids_have_init = true;
     }
