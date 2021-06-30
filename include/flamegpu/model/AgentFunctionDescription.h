@@ -10,6 +10,7 @@
 #include "flamegpu/runtime/AgentFunction.h"
 #include "flamegpu/runtime/AgentFunctionCondition.h"
 #include "flamegpu/model/DependencyNode.h"
+#include "flamegpu/model/Variable.h"
 #include "flamegpu/model/LayerDescription.h"
 #include "flamegpu/runtime/messaging/BruteForce.h"
 #include "flamegpu/runtime/cuRVE/curve_rtc.h"
@@ -312,6 +313,12 @@ AgentFunctionDescription &AgentDescription::newFunction(const std::string &funct
         AgentFunctionWrapper *f = AgentFunction::fnPtr();
         std::string in_t = CurveRTCHost::demangle(AgentFunction::inType().name());
         std::string out_t = CurveRTCHost::demangle(AgentFunction::outType().name());
+        std::cout << "in_t: " << in_t << " out_t: " << out_t << std::endl;
+        if (in_t == "MsgSpatial3D" || in_t == "MsgSpatial2D" || out_t == "MsgSpatial3D" || out_t == "MsgSpatial2D") {
+            if (agent->variables.find("fgpu2_reserved_bin_index") == agent->variables.end()) {
+                agent->variables.emplace("fgpu2_reserved_bin_index", Variable(1, std::vector<unsigned int> {0}));
+            }
+        }
         auto rtn = std::shared_ptr<AgentFunctionData>(new AgentFunctionData(this->agent->shared_from_this(), function_name, f, in_t, out_t));
         agent->functions.emplace(function_name, rtn);
         return *rtn->description;
