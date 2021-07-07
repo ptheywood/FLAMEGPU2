@@ -692,4 +692,5 @@ void HostAgentAPI::sort(const std::string &variable1, Order order1, const std::s
         population->purgeCache();
     }
 }
+
 #endif  // INCLUDE_FLAMEGPU_RUNTIME_HOSTAGENTAPI_H_
