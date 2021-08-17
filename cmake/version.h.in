@@ -64,6 +64,8 @@ static constexpr char VERSION_STRING[] = "${FLAMEGPU_VERSION_STRING}";
  */
 static constexpr char VERSION_FULL[] = "${FLAMEGPU_VERSION_FULL}";
 
+extern const char VERSION_EMBEDDED[];
+
 }  // namespace flamegpu
 
 #endif  // INCLUDE_FLAMEGPU_VERSION_H_
