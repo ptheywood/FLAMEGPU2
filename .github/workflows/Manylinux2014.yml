@@ -116,6 +116,14 @@ jobs:
         make -j `nproc`
         make install
 
+    - name: Manually install recent GLEW?
+      if: ${{ env.VISUALISATION == 'ON' }}
+      run: |
+        wget https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz
+        tar -zxf glew-2.2.0
+        make 
+        make install
+
     - name: Configure cmake
       run: >
         cmake . -B "${{ env.BUILD_DIR }}"
