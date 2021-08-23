@@ -122,9 +122,9 @@ jobs:
       if: ${{ env.VISUALISATION == 'ON' }}
       run: |
         yum install -y wget
-        wget https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz
-        tar -zxf glew-2.2.0.tgz
-        cd glew-2.2.0
+        wget https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0.tgz
+        tar -zxf glew-2.1.0.tgz
+        cd glew-2.1.0
         make 
         make install
 
