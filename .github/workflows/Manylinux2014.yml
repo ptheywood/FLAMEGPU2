@@ -60,6 +60,8 @@ jobs:
       AUDITWHEEL_REPAIR: "OFF"
       MANYLINUX: "manylinux_2_17"
       ARCH: "x86_64"
+      # Control if static GLEW should be built and used or not. 
+      USE_STATIC_GLEW: "ON"
       # Compute the wheelhouse name which should be unique within the matrix. This must be unique per build matrix/job combination
       ARTIFACT_NAME: wheel-manylinux2014-${{ matrix.cudacxx.cuda }}-${{matrix.python}}-${{ matrix.VISUALISATION }}-${{ matrix.config.name }}-${{ matrix.cudacxx.os }}
       # Define constants
@@ -119,17 +121,18 @@ jobs:
         make -j `nproc`
         make install
 
-    - name: Manually install recent GLEW?
-      if: ${{ env.VISUALISATION == 'ON' }}
+    - name: Build and install GLEW including static GLEW
+      if: ${{ env.VISUALISATION == 'ON' && env.USE_STATIC_GLEW == 'ON' }}
+      env: 
+        GLEW_VERSION: "2.2.0"
       run: |
         yum install -y wget
-        wget https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0.tgz
-        tar -zxf glew-2.1.0.tgz
-        cd glew-2.1.0
+        wget https://github.com/nigels-com/glew/releases/download/glew-${{ env.GLEW_VERSION }}/glew-${{ env.GLEW_VERSION }}.tgz
+        tar -zxf glew-${{ env.GLEW_VERSION }}.tgz
+        cd glew-${{ env.GLEW_VERSION }}
         make 
         make install
 
-    # Unlike other builds manylinux, uses static glew as it has been built and installed.
     - name: Configure cmake
       run: >
         cmake . -B "${{ env.BUILD_DIR }}"
@@ -143,7 +146,7 @@ jobs:
         -DPYTHON3_EXACT_VERSION="${{ env.PYTHON }}"
         -DVISUALISATION="${{ env.VISUALISATION }}"
         -DUSE_NVTX="ON"
-        -DGLEW_USE_STATIC_LIBS="ON"
+        -DGLEW_USE_STATIC_LIBS="${{ env.USE_STATIC_GLEW }}"
 
     - name: Build python wheel
       if: ${{ env.BUILD_SWIG_PYTHON == 'ON' }}
