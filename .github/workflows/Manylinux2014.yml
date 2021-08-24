@@ -58,9 +58,9 @@ jobs:
     env:
       # Control if the wheel should be repaired. This will fail until .so's are addressed
       AUDITWHEEL_REPAIR: "OFF"
-      MANYLINUX: "manylinux_2_17"
+      MANYLINUX: "manylinux2014"
       ARCH: "x86_64"
-      # Control if static GLEW should be built and used or not. 
+      # Control if static GLEW should be built and used or not.
       USE_STATIC_GLEW: "ON"
       # Compute the wheelhouse name which should be unique within the matrix. This must be unique per build matrix/job combination
       ARTIFACT_NAME: wheel-manylinux2014-${{ matrix.cudacxx.cuda }}-${{matrix.python}}-${{ matrix.VISUALISATION }}-${{ matrix.config.name }}-${{ matrix.cudacxx.os }}
@@ -123,14 +123,14 @@ jobs:
 
     - name: Build and install GLEW including static GLEW
       if: ${{ env.VISUALISATION == 'ON' && env.USE_STATIC_GLEW == 'ON' }}
-      env: 
+      env:
         GLEW_VERSION: "2.2.0"
       run: |
         yum install -y wget
         wget https://github.com/nigels-com/glew/releases/download/glew-${{ env.GLEW_VERSION }}/glew-${{ env.GLEW_VERSION }}.tgz
         tar -zxf glew-${{ env.GLEW_VERSION }}.tgz
         cd glew-${{ env.GLEW_VERSION }}
-        make 
+        make
         make install
 
     - name: Configure cmake
@@ -147,6 +147,7 @@ jobs:
         -DVISUALISATION="${{ env.VISUALISATION }}"
         -DUSE_NVTX="ON"
         -DGLEW_USE_STATIC_LIBS="${{ env.USE_STATIC_GLEW }}"
+        -DOpenGL_GL_PREFERENCE:STRING=LEGACY
 
     - name: Build python wheel
       if: ${{ env.BUILD_SWIG_PYTHON == 'ON' }}
