@@ -9,6 +9,7 @@ on:
     paths:
       - "**"
       - "!.github/**"
+      - ".github/scripts/auditwheel_repair_skip_cudalibs.sh"
       - ".github/scripts/install_cuda_centos.sh"
       - ".github/workflows/Manylinux2014.yml"
   pull_request:
