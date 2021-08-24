@@ -124,7 +124,7 @@ echo "SOFILE=${SOFILE}"
 patchelf --print-needed ${SOFILE}
 
 # Grab the output of ldd once. 
-LDD_OUTPUT=$(ldd ${SOFILE})
+LDD_OUTPUT=$(ldd "${SOFILE}")
 
 # Remove matching .so's via patchelf
 for SOPATTERN in "${SO_TO_NOT_PACKAGE[@]}"; do
