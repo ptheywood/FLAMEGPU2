@@ -12,7 +12,22 @@ SO_TO_NOT_PACKAGE=(
     libcudart.so
     libnvrtc.so
     libcurand.so
+    libGLdispatch.so
+    libGLU.so
+    libGLX.so
+    libOpenGL.so
 )
+
+
+# libbz2.so
+# libfontconfig.so
+# libfreetype.so
+# libIL.so
+# libpng15.so
+# libSDL2.so
+# libuuid.so
+# libz.so
+
 
 ARGC_REQUIRED=2
 function print_usage {
