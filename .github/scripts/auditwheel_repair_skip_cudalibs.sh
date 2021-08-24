@@ -123,9 +123,12 @@ echo "SOFILE=${SOFILE}"
 # Output the needed .so's for debugging info
 patchelf --print-needed ${SOFILE}
 
+# Grab the output of ldd once. 
+LDD_OUTPUT=$(ldd ${SOFILE})
+
 # Remove matching .so's via patchelf
 for SOPATTERN in "${SO_TO_NOT_PACKAGE[@]}"; do
-    S=$(ldd ${SOFILE} | grep ${SOPATTERN} | sed -e 's/^[[:space:]]*//' | cut -d " " -f 1 | head -n 1)
+    S=$(echo "${LDD_OUTPUT}" | grep ${SOPATTERN} | sed -e 's/^[[:space:]]*//' | cut -d " " -f 1 | head -n 1)
     if [ ! -z "$S" ] ; then
         echo "removing ${S}"
         patchelf --remove-needed ${S} ${SOFILE}
