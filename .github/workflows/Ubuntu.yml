@@ -126,6 +126,21 @@ jobs:
           sudo apt-get install -y libglew-dev libfontconfig1-dev libsdl2-dev libdevil-dev libfreetype6-dev libgl1-mesa-dev
         fi
 
+    - name: Install Swig >= 4.0.2
+      run: |
+        # Install additional apt-based dependencies required to build swig 4.0.2
+        sudo apt-get install -y bison
+        # Create a local directory to build swig in.
+        mkdir -p swig-from-source && cd swig-from-source
+        # Install SWIG building from source dependencies
+        wget https://github.com/swig/swig/archive/refs/tags/v4.0.2.tar.gz
+        tar -zxf v4.0.2.tar.gz
+        cd swig-4.0.2/
+        ./autogen.sh
+        ./configure
+        make
+        sudo make install
+
     - name: Configure cmake
       run: >
         cmake . -B "${{ env.BUILD_DIR }}"
