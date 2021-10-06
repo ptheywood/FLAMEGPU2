@@ -129,7 +129,7 @@ jobs:
     - name: Install Swig >= 4.0.2
       run: |
         # Remove existing swig install, so CMake finds the correct swig
-        sudo apt-get remove -y swig
+        sudo apt-get remove -y swig swig4.0
         # Install additional apt-based dependencies required to build swig 4.0.2
         sudo apt-get install -y bison
         # Create a local directory to build swig in.
